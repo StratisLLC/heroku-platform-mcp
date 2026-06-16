@@ -1,0 +1,18 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate app.json
+        run: jq empty app.json
+      - name: Validate install.sh syntax
+        run: bash -n bin/install.sh
+      - name: Validate postdeploy.js syntax
+        run: node --check bin/postdeploy.js

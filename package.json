@@ -1,0 +1,19 @@
+{
+  "name": "heroku-platform-mcp-deploy",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Heroku Button deploy repo for the Heroku Platform MCP server.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/StratisLLC/heroku-platform-mcp.git"
+  },
+  "license": "Apache-2.0",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "heroku-postbuild": "bash ./bin/install.sh",
+    "start": "cd source && node packages/http-server/dist/bin.js"
+  },
+  "dependencies": {}
+}

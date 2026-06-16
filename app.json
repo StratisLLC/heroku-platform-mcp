@@ -1,0 +1,53 @@
+{
+  "name": "Heroku Platform MCP",
+  "description": "Self-hosted Heroku Platform MCP server. Multi-user, OAuth-protected, deployable in one click.",
+  "repository": "https://github.com/StratisLLC/heroku-platform-mcp",
+  "logo": "https://avatars.githubusercontent.com/StratisLLC",
+  "keywords": ["mcp", "heroku", "ai", "claude", "model-context-protocol"],
+  "stack": "heroku-24",
+  "buildpacks": [
+    { "url": "heroku/nodejs" }
+  ],
+  "addons": [
+    { "plan": "heroku-postgresql:essential-0" }
+  ],
+  "formation": {
+    "web": { "quantity": 1, "size": "basic" }
+  },
+  "env": {
+    "HEROKUMCP_OAUTH_CLIENT_ID": {
+      "description": "Don't have one yet? Open a terminal and run:    heroku clients:create 'My Heroku MCP' 'https://YOUR-APP-NAME.herokuapp.com/oauth/callback'    -- replacing YOUR-APP-NAME with the App name you'll pick above. The command prints a client_id and client_secret. Paste the client_id here. Looks like a UUID, e.g. cf136ec2-3d0f-4f6c-916d-2e1f8501cd4e.",
+      "required": true
+    },
+    "HEROKUMCP_OAUTH_CLIENT_SECRET": {
+      "description": "The client_secret printed by the same heroku clients:create command above. Treat this like a password -- it is encrypted at rest by the server.",
+      "required": true
+    },
+    "HEROKUMCP_ADMIN_CONTACT": {
+      "description": "Email address for the initial admin user. Sign-ins from this email will be allowed; all others will be denied until you add them to MCP_ALLOWED_EMAILS or MCP_ALLOWED_TEAMS after deploy.",
+      "required": true
+    },
+    "HEROKUMCP_MASTER_KEY": {
+      "description": "Auto-generated 32-byte secret for encrypting stored Heroku tokens at rest. Do not change this after deploy -- losing or rotating it invalidates every stored token (users will have to re-sign-in).",
+      "generator": "secret",
+      "required": true
+    },
+    "HEROKUMCP_OAUTH_SCOPE": {
+      "description": "OAuth scopes requested when users sign in to Heroku. Default works for most cases.",
+      "value": "identity,write-protected",
+      "required": false
+    },
+    "HEROKUMCP_PUBLIC_URL": {
+      "description": "Public URL of this deployed server. Leave blank -- the postdeploy script will set it automatically to https://<app-name>.herokuapp.com.",
+      "required": false
+    },
+    "SOURCE_TAG": {
+      "description": "Git tag of StratisLLC/heroku-platform-mcp-server to deploy. Bump this when a new version ships.",
+      "value": "v1.1.0",
+      "required": false
+    }
+  },
+  "scripts": {
+    "postdeploy": "node ./bin/postdeploy.js"
+  }
+}
