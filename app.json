@@ -33,7 +33,7 @@
       "required": true
     },
     "HEROKUMCP_OAUTH_SCOPE": {
-      "description": "OAuth scopes requested when users sign in to Heroku. Default works for most cases.",
+      "description": "OAuth scope the MCP requests. Leave as-is for least-privilege: full platform tools, no usage/billing. Type `global` to grant elevated access. Enabling this does NOT by itself let you see usage and billing -- your Heroku user must also have billing/enterprise-admin permission; if it does not, the MCP will fail when it attempts those calls. Typing `global` confirms you want to grant the MCP these elevated permissions. (Use the single word `global`, not `identity,global`.)",
       "value": "identity,write-protected",
       "required": false
     },
@@ -43,7 +43,7 @@
     },
     "SOURCE_TAG": {
       "description": "Git tag of StratisLLC/heroku-platform-mcp-server to deploy. Bump this when a new version ships.",
-      "value": "v1.2.0",
+      "value": "v1.3.0",
       "required": false
     }
   },
