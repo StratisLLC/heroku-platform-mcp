@@ -43,7 +43,7 @@
     },
     "SOURCE_TAG": {
       "description": "Git tag of StratisLLC/heroku-platform-mcp-server to deploy. Bump this when a new version ships.",
-      "value": "v1.3.0",
+      "value": "v1.3.1",
       "required": false
     }
   },
