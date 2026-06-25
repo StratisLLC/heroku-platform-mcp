@@ -33,12 +33,8 @@
       "required": true
     },
     "HEROKUMCP_OAUTH_SCOPE": {
-      "description": "OAuth scope the MCP requests. Leave as-is for least-privilege: full platform tools, no usage/billing. Type `global` to grant elevated access. Enabling this does NOT by itself let you see usage and billing -- your Heroku user must also have billing/enterprise-admin permission; if it does not, the MCP will fail when it attempts those calls. Typing `global` confirms you want to grant the MCP these elevated permissions. (Use the single word `global`, not `identity,global`.)",
+      "description": "OAuth scope the MCP requests. Leave as-is for least-privilege: full platform tools, no usage/billing. If you need Heroku Usage MCP functionality, you should TYPE 'global' to grant elevated access. Enabling this does NOT by itself let you see usage and billing -- your Heroku user must also have billing/enterprise-admin permission; if it does not, the MCP will fail when it attempts those calls. Typing `global` confirms you want to grant the MCP these elevated permissions. (Use the single word `global`, not `identity,global`.)",
       "value": "identity,write-protected",
-      "required": false
-    },
-    "HEROKUMCP_PUBLIC_URL": {
-      "description": "Public URL of this deployed server. Leave blank -- the postdeploy script will set it automatically to https://<app-name>.herokuapp.com.",
       "required": false
     },
     "SOURCE_TAG": {
