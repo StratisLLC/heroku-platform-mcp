@@ -16,7 +16,7 @@
   },
   "env": {
     "HEROKUMCP_OAUTH_CLIENT_ID": {
-      "description": "Don't have one yet? Open a terminal and run:    heroku clients:create 'My Heroku MCP' 'https://YOUR-APP-NAME.herokuapp.com/oauth/callback'    -- replacing YOUR-APP-NAME with the App name you'll pick above. The command prints a client_id and client_secret. Paste the client_id here. Looks like a UUID, e.g. cf136ec2-3d0f-4f6c-916d-2e1f8501cd4e.",
+      "description": "OAuth client_id for the server's own Heroku API calls (looks like a UUID, e.g. cf136ec2-3d0f-4f6c-916d-2e1f8501cd4e). DON'T HAVE ONE YET? You finish creating it AFTER deploy, once you know this app's REAL URL. For now, run:    heroku clients:create 'My Heroku MCP' 'https://example.com/oauth/callback'    -- paste the printed client_id here and the client_secret below, then deploy. We register a PLACEHOLDER url now because Heroku assigns this app's real hostname (with a random suffix) only AFTER it is created. When deploy finishes, the app's logs print your real callback URL and the single 'heroku clients:update' command to fix it.",
       "required": true
     },
     "HEROKUMCP_OAUTH_CLIENT_SECRET": {

@@ -1,83 +1,43 @@
 #!/usr/bin/env node
-const https = require('node:https');
+// Post-deploy guidance for Heroku Button deploys.
+//
+// Heroku serves Button-deployed apps at a LONG hostname with a random suffix
+// (e.g. https://<app>-xxxxxxxxxxxx.herokuapp.com). That real hostname is NOT
+// available to this script: HEROKU_APP_DEFAULT_DOMAIN_NAME is empty in this
+// environment, and Button deploys do not inject HEROKU_API_KEY — so we can
+// neither derive the real URL nor set it via the Platform API. We deliberately
+// do NOT set HEROKUMCP_PUBLIC_URL to the short host (that would be wrong and is
+// the cause of the OAuth callback 404). The server self-resolves its real
+// public URL from the inbound x-forwarded-host header at request time, so
+// PUBLIC_URL never needs to be set. This script's job is to print the
+// DEPLOY-THEN-FIXUP steps the operator runs once the real URL is known.
 
 const appName = process.env.HEROKU_APP_NAME;
-const apiKey = process.env.HEROKU_API_KEY;
-const publicUrl = `https://${appName}.herokuapp.com`;
+const appInfoCmd = appName ? `heroku apps:info -a ${appName}` : 'heroku apps:info -a <your-app>';
 
-async function setConfigVar(key, value) {
-  return new Promise((resolve, reject) => {
-    const body = JSON.stringify({ [key]: value });
-    const req = https.request(
-      {
-        method: 'PATCH',
-        host: 'api.heroku.com',
-        path: `/apps/${appName}/config-vars`,
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Accept': 'application/vnd.heroku+json; version=3',
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(body),
-        },
-      },
-      (res) => {
-        let data = '';
-        res.on('data', (chunk) => (data += chunk));
-        res.on('end', () => {
-          if (res.statusCode >= 200 && res.statusCode < 300) {
-            resolve();
-          } else {
-            reject(new Error(`Heroku API ${res.statusCode}: ${data}`));
-          }
-        });
-      },
-    );
-    req.on('error', reject);
-    req.write(body);
-    req.end();
-  });
-}
-
-async function main() {
-  // NOTE(operator): HEROKU_API_KEY is NOT automatically injected into postdeploy
-  // dynos for Heroku Button deploys (confirmed via Heroku docs — it is only
-  // present if explicitly set/inherited as a config var). So in the common case
-  // this script falls through to printing the manual `heroku config:set` command.
-  // That's expected and harmless; the server tolerates HEROKUMCP_PUBLIC_URL being
-  // unset for the duration between deploy and the user running that command.
-  if (!appName || !apiKey) {
-    console.error('postdeploy: HEROKU_APP_NAME or HEROKU_API_KEY not set; skipping auto-config.');
-    console.error('postdeploy: Manually set HEROKUMCP_PUBLIC_URL with: heroku config:set HEROKUMCP_PUBLIC_URL=https://<your-app>.herokuapp.com');
-  } else {
-    try {
-      await setConfigVar('HEROKUMCP_PUBLIC_URL', publicUrl);
-      console.error(`postdeploy: HEROKUMCP_PUBLIC_URL set to ${publicUrl}`);
-    } catch (err) {
-      console.error(`postdeploy: failed to set HEROKUMCP_PUBLIC_URL automatically: ${err.message}`);
-      console.error(`postdeploy: please run manually: heroku config:set HEROKUMCP_PUBLIC_URL=${publicUrl} -a ${appName}`);
-    }
-  }
-
-  console.error('');
-  console.error('============================================================');
-  console.error('  Heroku Platform MCP — Deploy Complete');
-  console.error('============================================================');
-  console.error('');
-  console.error(`  Server URL:  ${publicUrl}`);
-  console.error(`  MCP endpoint:  ${publicUrl}/mcp`);
-  console.error('');
-  console.error('  Next steps:');
-  console.error(`  1. If your Heroku OAuth client's redirect URI does not match ${publicUrl}/oauth/callback,`);
-  console.error(`     update it now:   heroku clients:update <client-id> --url ${publicUrl}/oauth/callback`);
-  console.error('  2. In Claude Desktop: Settings → Connectors → Add custom connector');
-  console.error(`     URL:  ${publicUrl}/mcp`);
-  console.error('     Leave OAuth client fields blank — Dynamic Client Registration handles it.');
-  console.error('  3. Sign in via the OAuth flow when Claude Desktop opens your browser.');
-  console.error('');
-  console.error('============================================================');
-}
-
-main().catch((err) => {
-  console.error('postdeploy: unexpected error', err);
-  process.exit(1);
-});
+console.error('');
+console.error('============================================================');
+console.error('  Heroku Platform MCP — Deploy Complete');
+console.error('============================================================');
+console.error('');
+console.error("  IMPORTANT: this app's real URL has a RANDOM SUFFIX, e.g.");
+console.error('  https://<app>-xxxxxxxxxxxx.herokuapp.com');
+console.error('  The short https://<app>.herokuapp.com will NOT work for OAuth.');
+console.error('  Use the real URL everywhere below.');
+console.error('');
+console.error('  Finish setup (deploy-then-fixup):');
+console.error('');
+console.error("  1. Get this app's REAL Web URL:");
+console.error('       Heroku Dashboard -> your app -> "Open app", or run:');
+console.error(`       ${appInfoCmd}      (copy the "Web URL")`);
+console.error('');
+console.error('  2. Point your OAuth client at that real URL. Use the client_id you');
+console.error('     created before deploy (this replaces the placeholder redirect URL):');
+console.error('       heroku clients:update <YOUR_CLIENT_ID> --url <REAL_URL>/oauth/callback');
+console.error('');
+console.error('  3. Connect from Claude/Cursor:');
+console.error('       Settings -> Connectors -> Add custom connector');
+console.error('       URL:  <REAL_URL>/mcp      (or <REAL_URL>/mcp-codemode)');
+console.error('       Leave the connector OAuth fields blank — DCR handles it. Then sign in.');
+console.error('');
+console.error('============================================================');
